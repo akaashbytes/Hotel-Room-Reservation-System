@@ -1,0 +1,69 @@
+package com.wipro.hotel.dao;
+
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.util.DBUtil;
+
+public class RoomReservationDAO {
+
+    // ADD RECORD
+    public String createRecord(RoomReservationBean bean) {
+
+        String recordId = "";
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            // Generate sequence
+            String seqQuery = "SELECT ROOMRES_SEQ.NEXTVAL FROM DUAL";
+            PreparedStatement seqPs = con.prepareStatement(seqQuery);
+            ResultSet rs = seqPs.executeQuery();
+
+            if (rs.next()) {
+                int seq = rs.getInt(1);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                String datePart = sdf.format(bean.getCheckInDate());
+
+                String guest = bean.getGuestName();
+                String namePart = guest.length() >= 2 ?
+                        guest.substring(0, 2).toUpperCase() :
+                        guest.toUpperCase();
+
+                recordId = datePart + namePart + seq;
+            }
+
+            String sql = "INSERT INTO ROOMRES_TB VALUES(?,?,?,?,?,?,?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, recordId);
+            ps.setString(2, bean.getGuestName());
+            ps.setString(3, bean.getRoomType());
+            ps.setDate(4, new java.sql.Date(bean.getCheckInDate().getTime()));
+            ps.setDate(5, new java.sql.Date(bean.getCheckOutDate().getTime()));
+            ps.setString(6, bean.getRoomNo());
+            ps.setString(7, bean.getRemarks());
+
+            int result = ps.executeUpdate();
+
+            if (result > 0)
+                return recordId;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "FAIL";
+    
+
+    // VIEW SINGLE RECORD
+    public RoomReservationBean fetchRecord(String guestName, java.util.Date checkInDate) {
+
+        RoomReservationBean bean = null;
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            String sql

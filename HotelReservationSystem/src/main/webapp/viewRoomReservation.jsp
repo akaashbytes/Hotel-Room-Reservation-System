@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Room Reservation</title>
+</head>
+<body>
+
+<h2>View Room Reservation</h2>
+<form action="MainServlet" method="post">
+    <input type="hidden" name="operation" value="viewRecord">
+    Guest Name:
+    <input type="text" name="guestName"><br><br>
+    Check In Date:
+    <input type="date" name="checkInDate"><br><br>
+    <input type="submit" value="View Reservation">
+</form>
+<br>
+<a href="menu.html">Back to Menu</a>
+
+</body>
+</html>

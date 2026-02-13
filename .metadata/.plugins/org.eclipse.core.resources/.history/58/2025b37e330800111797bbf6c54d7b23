@@ -1,0 +1,5 @@
+package com.wipro.hotel.servlets;
+
+public class MainServlet {
+
+}

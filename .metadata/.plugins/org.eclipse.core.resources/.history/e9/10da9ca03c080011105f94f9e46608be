@@ -1,0 +1,3 @@
+<a href="addRoomReservation.jsp">Add Room Reservation</a><br>
+<a href="viewRoomReservation.jsp">View Room Reservation</a><br>
+<a href="viewAllRoomReservations.jsp">View All Room Reservations</a>

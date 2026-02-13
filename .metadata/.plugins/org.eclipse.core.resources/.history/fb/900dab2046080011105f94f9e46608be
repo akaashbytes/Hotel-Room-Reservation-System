@@ -1,0 +1,12 @@
+<form action="<%=request.getContextPath()%>/MainServlet" method="post">
+<input type="hidden" name="operation" value="newRecord"/>
+
+Guest Name: <input type="text" name="guestName" required/><br>
+Room Type: <input type="text" name="roomType" required/><br>
+Check In: <input type="date" name="checkInDate" required/><br>
+Check Out: <input type="date" name="checkOutDate" required/><br>
+Room No: <input type="text" name="roomNo"/><br>
+Remarks: <input type="text" name="remarks"/><br>
+
+<input type="submit" value="Add"/>
+</form>

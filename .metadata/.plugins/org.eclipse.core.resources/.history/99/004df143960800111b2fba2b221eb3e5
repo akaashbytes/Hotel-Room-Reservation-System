@@ -1,0 +1,33 @@
+package com.wipro.hotel.service;
+
+import java.util.Date;
+import java.util.List;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.dao.RoomReservationDAO;
+
+public class Administrator {
+
+    RoomReservationDAO dao = new RoomReservationDAO();
+
+    // ADD RECORD
+    public String addRecord(RoomReservationBean bean) {
+
+        // Simple validation example
+        if (bean.getCheckOutDate().before(bean.getCheckInDate())) {
+            return "INVALID_DATES";
+        }
+
+        return dao.createRecord(bean);
+    }
+
+    // VIEW SINGLE RECORD
+    public RoomReservationBean viewRecord(String guestName, Date checkInDate) {
+        return dao.fetchRecord(guestName, checkInDate);
+    }
+
+    // VIEW ALL RECORDS
+    public List<RoomReservationBean> viewAllRecords() {
+        return dao.fetchAllRecords();
+    }
+}

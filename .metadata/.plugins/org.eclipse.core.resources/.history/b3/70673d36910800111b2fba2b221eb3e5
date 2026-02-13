@@ -1,0 +1,48 @@
+<%@ page import="java.util.List" %>
+<%@ page import="com.wipro.hotel.bean.RoomReservationBean" %>
+
+<%
+List<RoomReservationBean> list =
+    (List<RoomReservationBean>) request.getAttribute("allRecords");
+%>
+
+<h2>All Room Reservations</h2>
+
+<table border="1">
+<tr>
+<th>Record ID</th>
+<th>Guest Name</th>
+<th>Room Type</th>
+<th>Check In</th>
+<th>Check Out</th>
+<th>Room No</th>
+<th>Remarks</th>
+</tr>
+
+<% if(list != null && !list.isEmpty()) {
+   for(RoomReservationBean bean : list) {
+%>
+
+<tr>
+<td><%= bean.getRecordId() %></td>
+<td><%= bean.getGuestName() %></td>
+<td><%= bean.getRoomType() %></td>
+<td><%= bean.getCheckInDate() %></td>
+<td><%= bean.getCheckOutDate() %></td>
+<td><%= bean.getRoomNo() %></td>
+<td><%= bean.getRemarks() %></td>
+</tr>
+
+<%   }
+   } else { %>
+
+<tr>
+<td colspan="7">No Records Found</td>
+</tr>
+
+<% } %>
+
+</table>
+
+<br>
+<a href="menu.html">Back to Menu</a>

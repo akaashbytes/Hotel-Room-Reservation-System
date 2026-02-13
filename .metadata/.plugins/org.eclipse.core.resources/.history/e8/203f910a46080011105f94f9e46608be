@@ -1,0 +1,5 @@
+package com.wipro.hotel.dao;
+
+public class RoomReservationDAO {
+
+}

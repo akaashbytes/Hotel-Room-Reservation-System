@@ -1,0 +1,98 @@
+package com.wipro.hotel.servlets;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.service.Administrator;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+
+public class MainServlet extends HttpServlet {
+
+    Administrator admin = new Administrator();
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String operation = request.getParameter("operation");
+
+        try {
+
+            if ("newRecord".equals(operation)) {
+
+                String result = addRecord(request);
+
+                if ("FAIL".equals(result) || result.contains("INVALID") || result.contains("ALREADY"))
+                    response.sendRedirect("error.html");
+                else
+                    response.sendRedirect("success.html");
+
+            }
+
+            if ("viewRecord".equals(operation)) {
+
+                RoomReservationBean bean = viewRecord(request);
+
+                if (bean == null) {
+                    request.setAttribute("message", "No matching records exists! Please try again!");
+                } else {
+                    request.setAttribute("bean", bean);
+                }
+
+                RequestDispatcher rd = request.getRequestDispatcher("displayRoomReservation.jsp");
+                rd.forward(request, response);
+            }
+
+            if ("viewAllRecords".equals(operation)) {
+
+                List<RoomReservationBean> list = admin.viewAllRecords();
+
+                request.setAttribute("list", list);
+                RequestDispatcher rd = request.getRequestDispatcher("displayAllRoomReservations.jsp");
+                rd.forward(request, response);
+            }
+
+        } catch (Exception e) {
+            response.sendRedirect("error.html");
+        }
+    }
+
+    private String addRecord(HttpServletRequest request) throws Exception {
+
+        RoomReservationBean bean = new RoomReservationBean();
+
+        bean.setGuestName(request.getParameter("guestName"));
+        bean.setRoomType(request.getParameter("roomType"));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date checkIn = sdf.parse(request.getParameter("checkInDate"));
+        Date checkOut = sdf.parse(request.getParameter("checkOutDate"));
+
+        bean.setCheckInDate(checkIn);
+        bean.setCheckOutDate(checkOut);
+
+        bean.setRoomNo(request.getParameter("roomNo"));
+        bean.setRemarks(request.getParameter("remarks"));
+
+        return admin.addRecord(bean);
+    }
+
+    private RoomReservationBean viewRecord(HttpServletRequest request) throws Exception {
+
+        String guestName = request.getParameter("guestName");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date checkIn = sdf.parse(request.getParameter("checkInDate"));
+
+        return admin.viewRecord(guestName, checkIn);
+    }
+}

@@ -1,0 +1,59 @@
+package com.wipro.hotel.servlets;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.dao.RoomReservationDAO;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/MainServlet")
+public class MainServlet extends HttpServlet {
+
+    RoomReservationDAO dao = new RoomReservationDAO();
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String operation = request.getParameter("operation");
+
+        try {
+
+            if ("newRecord".equals(operation)) {
+
+                RoomReservationBean bean = new RoomReservationBean();
+
+                bean.setGuestName(request.getParameter("guestName"));
+                bean.setRoomType(request.getParameter("roomType"));
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                Date checkIn = sdf.parse(request.getParameter("checkInDate"));
+                Date checkOut = sdf.parse(request.getParameter("checkOutDate"));
+
+                bean.setCheckInDate(checkIn);
+                bean.setCheckOutDate(checkOut);
+
+                bean.setRoomNo(request.getParameter("roomNo"));
+                bean.setRemarks(request.getParameter("remarks"));
+
+                String result = dao.createRecord(bean);
+
+                if (!"FAIL".equals(result))
+                    response.sendRedirect("success.html");
+                else
+                    response.sendRedirect("error.html");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.html");
+        }
+    }
+}

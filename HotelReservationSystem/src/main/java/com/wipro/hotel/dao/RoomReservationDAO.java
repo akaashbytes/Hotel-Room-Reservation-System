@@ -1,0 +1,152 @@
+package com.wipro.hotel.dao;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.util.DBUtil;
+public class RoomReservationDAO {
+
+    public boolean recordExists(String guestName, Date checkInDate) {
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            String sql = "SELECT * FROM ROOMRES_TB WHERE GUESTNAME=? AND CHECKIN_DATE=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, guestName);
+            ps.setDate(2, new java.sql.Date(checkInDate.getTime()));
+
+            ResultSet rs = ps.executeQuery();
+
+            return rs.next();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public String generateRecordID(String guestName, Date checkInDate) {
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            String sql = "SELECT ROOMRES_SEQ.NEXTVAL FROM DUAL";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                int seq = rs.getInt(1);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                String datePart = sdf.format(checkInDate);
+
+                String namePart = guestName.substring(0, 2).toUpperCase();
+
+                return datePart + namePart + String.format("%02d", seq);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String createRecord(RoomReservationBean bean) {
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            String sql = "INSERT INTO ROOMRES_TB VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, bean.getRecordId());
+            ps.setString(2, bean.getGuestName());
+            ps.setString(3, bean.getRoomType());
+            ps.setDate(4, new java.sql.Date(bean.getCheckInDate().getTime()));
+            ps.setDate(5, new java.sql.Date(bean.getCheckOutDate().getTime()));
+            ps.setString(6, bean.getRoomNo());
+            ps.setString(7, bean.getRemarks());
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0)
+                return bean.getRecordId();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "FAIL";
+    }
+
+    public RoomReservationBean fetchRecord(String guestName, Date checkInDate) {
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            String sql = "SELECT * FROM ROOMRES_TB WHERE GUESTNAME=? AND CHECKIN_DATE=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, guestName);
+            ps.setDate(2, new java.sql.Date(checkInDate.getTime()));
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                RoomReservationBean bean = new RoomReservationBean();
+
+                bean.setRecordId(rs.getString("RECORDID"));
+                bean.setGuestName(rs.getString("GUESTNAME"));
+                bean.setRoomType(rs.getString("ROOMTYPE"));
+                bean.setCheckInDate(rs.getDate("CHECKIN_DATE"));
+                bean.setCheckOutDate(rs.getDate("CHECKOUT_DATE"));
+                bean.setRoomNo(rs.getString("ROOMNO"));
+                bean.setRemarks(rs.getString("REMARKS"));
+
+                return bean;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public List<RoomReservationBean> fetchAllRecords() {
+
+        List<RoomReservationBean> list = new ArrayList<>();
+
+        try (Connection con = DBUtil.getDBConnection()) {
+
+            String sql = "SELECT * FROM ROOMRES_TB";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                RoomReservationBean bean = new RoomReservationBean();
+
+                bean.setRecordId(rs.getString("RECORDID"));
+                bean.setGuestName(rs.getString("GUESTNAME"));
+                bean.setRoomType(rs.getString("ROOMTYPE"));
+                bean.setCheckInDate(rs.getDate("CHECKIN_DATE"));
+                bean.setCheckOutDate(rs.getDate("CHECKOUT_DATE"));
+                bean.setRoomNo(rs.getString("ROOMNO"));
+                bean.setRemarks(rs.getString("REMARKS"));
+
+                list.add(bean);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+}

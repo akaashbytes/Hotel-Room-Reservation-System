@@ -1,0 +1,150 @@
+package com.wipro.hotel.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.util.DBUtil;
+
+public class RoomReservationDAO {
+
+    // CREATE RECORD
+    public String createRecord(RoomReservationBean bean) {
+
+        String status = "FAIL";
+
+        try {
+
+            Connection con = DBUtil.getDBConnection();
+
+            String sql = "INSERT INTO ROOM_RESERVATION "
+                    + "(RECORDID, GUESTNAME, ROOMTYPE, CHECKIN_DATE, CHECKOUT_DATE, ROOMNO, REMARKS) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            // Generate Record ID
+            String recordId = generateRecordId(bean.getGuestName());
+
+            ps.setString(1, recordId);
+            ps.setString(2, bean.getGuestName());
+            ps.setString(3, bean.getRoomType());
+
+            ps.setDate(4, new java.sql.Date(bean.getCheckInDate().getTime()));
+            ps.setDate(5, new java.sql.Date(bean.getCheckOutDate().getTime()));
+
+            ps.setString(6, bean.getRoomNo());
+            ps.setString(7, bean.getRemarks());
+
+            int rows = ps.executeUpdate();
+
+            if (rows > 0) {
+                status = recordId;
+            }
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return status;
+    }
+
+    // GENERATE RECORD ID
+    private String generateRecordId(String guestName) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String date = sdf.format(new Date());
+
+        return date + guestName.substring(0, 2).toUpperCase()
+                + (int) (Math.random() * 100);
+    }
+
+    // FETCH SINGLE RECORD
+    public RoomReservationBean fetchRecord(String guestName, Date checkInDate) {
+
+        RoomReservationBean bean = null;
+
+        try {
+
+            Connection con = DBUtil.getDBConnection();
+
+            String sql = "SELECT * FROM ROOM_RESERVATION "
+                    + "WHERE GUESTNAME = ? AND CHECKIN_DATE = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, guestName);
+            ps.setDate(2, new java.sql.Date(checkInDate.getTime()));
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                bean = new RoomReservationBean();
+
+                bean.setRecordId(rs.getString("RECORDID"));
+                bean.setGuestName(rs.getString("GUESTNAME"));
+                bean.setRoomType(rs.getString("ROOMTYPE"));
+                bean.setCheckInDate(rs.getDate("CHECKIN_DATE"));
+                bean.setCheckOutDate(rs.getDate("CHECKOUT_DATE"));
+                bean.setRoomNo(rs.getString("ROOMNO"));
+                bean.setRemarks(rs.getString("REMARKS"));
+            }
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return bean;
+    }
+
+    // FETCH ALL RECORDS
+    public List<RoomReservationBean> fetchAllRecords() {
+
+        List<RoomReservationBean> list = new ArrayList<>();
+
+        try {
+
+            Connection con = DBUtil.getDBConnection();
+
+            String sql = "SELECT * FROM ROOM_RESERVATION";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                RoomReservationBean bean = new RoomReservationBean();
+
+                bean.setRecordId(rs.getString("RECORDID"));
+                bean.setGuestName(rs.getString("GUESTNAME"));
+                bean.setRoomType(rs.getString("ROOMTYPE"));
+                bean.setCheckInDate(rs.getDate("CHECKIN_DATE"));
+                bean.setCheckOutDate(rs.getDate("CHECKOUT_DATE"));
+                bean.setRoomNo(rs.getString("ROOMNO"));
+                bean.setRemarks(rs.getString("REMARKS"));
+
+                list.add(bean);
+            }
+
+            System.out.println("Total records fetched: " + list.size());
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+}

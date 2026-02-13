@@ -1,0 +1,27 @@
+<%@ page import="com.wipro.hotel.bean.RoomReservationBean" %>
+
+<%
+RoomReservationBean bean =
+    (RoomReservationBean) request.getAttribute("record");
+%>
+
+<h2>Room Reservation Details</h2>
+
+<% if(bean != null) { %>
+
+Record ID: <%= bean.getRecordId() %><br>
+Guest Name: <%= bean.getGuestName() %><br>
+Room Type: <%= bean.getRoomType() %><br>
+Check In: <%= bean.getCheckInDate() %><br>
+Check Out: <%= bean.getCheckOutDate() %><br>
+Room No: <%= bean.getRoomNo() %><br>
+Remarks: <%= bean.getRemarks() %><br>
+
+<% } else { %>
+
+<h3>No Record Found!</h3>
+
+<% } %>
+
+<br>
+<a href="menu.html">Back to Menu</a>

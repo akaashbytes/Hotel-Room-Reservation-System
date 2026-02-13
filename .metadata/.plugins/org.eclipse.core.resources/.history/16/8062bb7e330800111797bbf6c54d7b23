@@ -1,0 +1,5 @@
+package com.wipro.hotel.service;
+
+public class Administrator {
+
+}

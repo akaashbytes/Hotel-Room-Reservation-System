@@ -1,0 +1,49 @@
+package com.wipro.hotel.service;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.text.SimpleDateFormat;
+import java.util.UUID;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.util.DBUtil;
+
+public class Administrator {
+
+    public String addRecord(RoomReservationBean bean) {
+
+        try {
+
+            Connection con = DBUtil.getConnection();
+
+            String sql = "INSERT INTO ROOMRES_TB VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            String recordId = "RR" + UUID.randomUUID().toString().substring(0, 6);
+
+            ps.setString(1, recordId);
+            ps.setString(2, bean.getGuestName());
+            ps.setString(3, bean.getRoomType());
+
+            ps.setDate(4, new java.sql.Date(bean.getCheckInDate().getTime()));
+            ps.setDate(5, new java.sql.Date(bean.getCheckOutDate().getTime()));
+
+            ps.setString(6, bean.getRoomNo());
+            ps.setString(7, bean.getRemarks());
+
+            int result = ps.executeUpdate();
+
+            con.close();
+
+            if (result > 0)
+                return "SUCCESS";
+            else
+                return "FAIL";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "FAIL";
+        }
+    }
+}

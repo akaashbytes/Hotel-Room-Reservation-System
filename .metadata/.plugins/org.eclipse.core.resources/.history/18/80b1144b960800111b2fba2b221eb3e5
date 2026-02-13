@@ -1,0 +1,91 @@
+package com.wipro.hotel.servlets;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import com.wipro.hotel.bean.RoomReservationBean;
+import com.wipro.hotel.service.Administrator;
+
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+@WebServlet("/MainServlet")
+public class MainServlet extends HttpServlet {
+
+    Administrator admin = new Administrator();
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String operation = request.getParameter("operation");
+
+        try {
+
+            // ADD RECORD
+            if ("newRecord".equals(operation)) {
+
+                RoomReservationBean bean = new RoomReservationBean();
+
+                bean.setGuestName(request.getParameter("guestName"));
+                bean.setRoomType(request.getParameter("roomType"));
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                Date checkIn = sdf.parse(request.getParameter("checkInDate"));
+                Date checkOut = sdf.parse(request.getParameter("checkOutDate"));
+
+                bean.setCheckInDate(checkIn);
+                bean.setCheckOutDate(checkOut);
+
+                bean.setRoomNo(request.getParameter("roomNo"));
+                bean.setRemarks(request.getParameter("remarks"));
+
+                String result = admin.addRecord(bean);
+
+                if ("INVALID_DATES".equals(result)) {
+                    response.getWriter().println("Check-out date must be after check-in date");
+                }
+                else if (!"FAIL".equals(result)) {
+                    response.sendRedirect("success.html");
+                }
+                else {
+                    response.sendRedirect("error.html");
+                }
+            }
+
+            // VIEW SINGLE RECORD
+            else if ("viewRecord".equals(operation)) {
+
+                String guestName = request.getParameter("guestName");
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date checkIn = sdf.parse(request.getParameter("checkInDate"));
+
+                RoomReservationBean bean =
+                        admin.viewRecord(guestName, checkIn);
+
+                request.setAttribute("record", bean);
+                request.getRequestDispatcher("viewRoomReservation.jsp")
+                        .forward(request, response);
+            }
+
+            // VIEW ALL RECORDS
+            else if ("viewAllRecords".equals(operation)) {
+
+                List<RoomReservationBean> list =
+                        admin.viewAllRecords();
+
+                request.setAttribute("allRecords", list);
+                request.getRequestDispatcher("viewAllRoomReservations.jsp")
+                        .forward(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.html");
+        }
+    }
+}
